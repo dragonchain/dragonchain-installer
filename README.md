@@ -13,7 +13,7 @@ In order to run this tool, simply download and run the appropriate executable pr
 If you are on linux or macos, you can alternatively run this command in a terminal as a shortcut:
 
 ```sh
-curl https://raw.githubusercontent.com/dragonchain/dragonchain-installer/master/scripts/get_installer.bash | bash
+curl -Lf https://raw.githubusercontent.com/dragonchain/dragonchain-installer/master/scripts/get_installer.bash -o installer.bash && bash installer.bash
 ```
 
 ## Configuring
@@ -30,6 +30,6 @@ User feedback is encouraged, and can either be provided using [github issues](ht
 
 ## Building From Source
 
-In order to build this project from source, ensure that you have golang 1.13 or later installed, run `go get -u github.com/dragonchain/dragonchain-installer` to get the code, then navigate to this cloned directory (`"$GOPATH/src/github.com/dragonchain/dragonchain-installer"`) and simply run: `make release`
+In order to build this project from source, ensure that you have golang 1.13 or later installed, then simply run `go get -u github.com/dragonchain/dragonchain-installer/cmd/dc-installer`.
 
-The built binaries will be in the `release` folder
+This will download and build the executable `dc-installer` into your `$GOPATH/bin`
