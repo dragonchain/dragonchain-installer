@@ -70,6 +70,7 @@ func InitializeHelm() error {
 	if err := cmd.Run(); err != nil {
 		return errors.New("Updating helm repo failed (are you connected to the internet?):\n" + err.Error())
 	}
+	time.Sleep(3 * time.Second)
 	if err := waitForTillerToBeReady(); err != nil {
 		return err
 	}

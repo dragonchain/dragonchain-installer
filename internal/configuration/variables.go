@@ -4,7 +4,7 @@ package configuration
 var Version string
 
 // DragonchainHelmVersion helm version of dragonchain to use
-var DragonchainHelmVersion = "1.0.3"
+var DragonchainHelmVersion = "1.0.4"
 
 // OpenfaasHelmVersion helm version of openfaas (faas-netes) to use
 var OpenfaasHelmVersion = "5.2.2"
