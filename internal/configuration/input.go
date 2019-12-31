@@ -2,11 +2,14 @@ package configuration
 
 import (
 	"bufio"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -16,18 +19,46 @@ import (
 
 // Configuration is all of the data needed to configure a new chain
 type Configuration struct {
-	Level             int
-	Name              string
-	EndpointURL       string
-	Port              int
-	InternalID        string
-	RegistrationToken string
+	Level             int    `json:"Level"`
+	Name              string `json:"Name"`
+	EndpointURL       string `json:"EndpointURL"`
+	Port              int    `json:"Port"`
+	InternalID        string `json:"InternalID"`
+	RegistrationToken string `json:"RegistrationToken"`
+	UseVM             bool   `json:"UseVM"`
 	PrivateKey        string
 	HmacID            string
 	HmacKey           string
 }
 
 var lowerCharNum = []byte("abcdefghijklmnopqrstuvxyz0123456789")
+
+func configFilePath() (string, error) {
+	credentialFolder, err := credentialFolderPath()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(credentialFolder, "installation_config"), nil
+}
+
+func checkExistingConfig() (*Configuration, error) {
+	existingConfigFile, err := configFilePath()
+	if err != nil {
+		return nil, err
+	}
+	if _, err := os.Stat(existingConfigFile); os.IsNotExist(err) {
+		return nil, err
+	}
+	file, err := ioutil.ReadFile(existingConfigFile)
+	if err != nil {
+		return nil, err
+	}
+	existingConf := new(Configuration)
+	if err = json.Unmarshal([]byte(file), existingConf); err != nil {
+		return nil, err
+	}
+	return existingConf, nil
+}
 
 func getPublicIP() (string, error) {
 	resp, err := http.Get("https://ifconfig.co/")
@@ -161,12 +192,73 @@ func getEndpoint(port int) (string, error) {
 	return endpoint, nil
 }
 
+func getVMDriver() (bool, error) {
+	if !Linux {
+		// VM Driver must be used if not on linux
+		return true, nil
+	}
+	if !AMD64 {
+		// VM Driver false is required if not AMD64
+		return false, nil
+	}
+	driver, err := getUserInput("Would you like to use your machine's native docker and run kubernetes outside of a VM? (yes/no) ")
+	if err != nil {
+		return false, err
+	}
+	driver = strings.ToLower(driver)
+	if driver == "y" || driver == "yes" {
+		// ensure docker is installed and running
+		cmd := exec.Command("sudo", "docker", "version")
+		cmd.Stderr = os.Stderr
+		cmd.Stdin = os.Stdin
+		if err := cmd.Run(); err != nil {
+			return false, errors.New("Error checking for running docker daemon:\n" + err.Error())
+		}
+		return false, nil
+	} else if driver == "n" || driver == "no" {
+		return true, nil
+	}
+	return false, errors.New("Must answer yes/no")
+}
+
 // PromptForUserConfiguration get user input for all the necessary configurable variables of a Dragonchain
 func PromptForUserConfiguration() (*Configuration, error) {
+	// Check for existing configuration from previous run first
+	existingConf, err := checkExistingConfig()
+	if err == nil {
+		answer, err := getUserInput(`Existing config found:
+			Level: ` + strconv.Itoa(existingConf.Level) + `
+			Name: ` + existingConf.Name + `
+			EndpointURL: ` + existingConf.EndpointURL + `
+			Port: ` + strconv.Itoa(existingConf.Port) + `
+			ChainID: ` + existingConf.InternalID + `
+			MatchmakingToken: ` + existingConf.RegistrationToken + `
+			UseVM: ` + strconv.FormatBool(existingConf.UseVM) + `
+			Would you like to use this config? (yes/no) `)
+		if err != nil {
+			return nil, err
+		}
+		answer = strings.ToLower(answer)
+		if answer == "y" || answer == "yes" {
+			return existingConf, nil
+		} else if answer == "n" || answer == "no" {
+			// Nothing happens, simply continue as normal
+		} else {
+			return nil, errors.New("Must answer yes/no")
+		}
+	}
+	// Get desired vm usage
+	vmDriver, err := getVMDriver()
+	if err != nil {
+		return nil, err
+	}
 	// Get desired level
 	level, err := getLevel()
 	if err != nil {
 		return nil, err
+	}
+	if level == 1 && !AMD64 {
+		return nil, errors.New("Level 1 chains are not supported on your cpu architecture")
 	}
 	// Get desired name
 	name, err := getName()
@@ -193,7 +285,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
-	// Construct and return the config object
+	// Construct and save the config object
 	config := new(Configuration)
 	config.Level = level
 	config.Name = name
@@ -201,5 +293,17 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	config.Port = port
 	config.InternalID = internalID
 	config.RegistrationToken = registrationToken
+	config.UseVM = vmDriver
+	configJSON, err := json.Marshal(config)
+	if err != nil {
+		return nil, err
+	}
+	configFile, err := configFilePath()
+	if err != nil {
+		return nil, err
+	}
+	if err = ioutil.WriteFile(configFile, configJSON, 0664); err != nil {
+		return nil, err
+	}
 	return config, nil
 }

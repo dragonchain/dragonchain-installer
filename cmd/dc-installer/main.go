@@ -36,15 +36,18 @@ func installer() {
 	if err := minikube.InstallMinikubeIfNecessary(); err != nil {
 		fatalLog(err)
 	}
-	if err := virtualbox.InstallVirtualBoxIfNecessary(); err != nil {
-		fatalLog(err)
-	}
-	fmt.Print("\nAll dependencies installed\nConfiguring dependencies now\n\n")
+	fmt.Print("\nBase dependencies installed\nConfiguring dependencies now\n\n")
 	config, err := configuration.PromptForUserConfiguration()
 	if err != nil {
 		fatalLog(err)
 	}
-	if err := minikube.StartMinikubeCluster(); err != nil {
+	if config.UseVM {
+		fmt.Print("Virtualbox required for minikube VM. Checking and installing if necessary\n")
+		if err := virtualbox.InstallVirtualBoxIfNecessary(); err != nil {
+			fatalLog(err)
+		}
+	}
+	if err := minikube.StartMinikubeCluster(config.UseVM); err != nil {
 		fatalLog(err)
 	}
 	if err := helm.InitializeHelm(); err != nil {
@@ -53,8 +56,10 @@ func installer() {
 	if err := dragonchain.SetupDragonchainPreReqs(config); err != nil {
 		fatalLog(err)
 	}
-	if err := virtualbox.ConfigureVirtualboxVM(config); err != nil {
-		fatalLog(err)
+	if config.UseVM {
+		if err := virtualbox.ConfigureVirtualboxVM(config); err != nil {
+			fatalLog(err)
+		}
 	}
 	fmt.Print("\nConfiguration of dependencies complete\nNow installing Dragonchain\n")
 	if err := dragonchain.InstallDragonchain(config); err != nil {
@@ -66,7 +71,7 @@ func installer() {
 		fatalLog(err)
 	}
 	fmt.Print("Dragonchain public id is: " + pubID + "\n\n")
-	startCommand, stopCommand := minikube.FriendlyStartStopCommand()
+	startCommand, stopCommand := minikube.FriendlyStartStopCommand(config.UseVM)
 	fmt.Print("In order to stop the dragonchain, run the following command in a terminal:\n" + stopCommand + "\n\n")
 	fmt.Print("In order to restart the dragonchain, run the following command in a terminal:\n" + startCommand + "\n\n")
 	if err := configuration.InstallDragonchainCredentials(config, pubID); err != nil {
@@ -98,6 +103,15 @@ func installer() {
 }
 
 func main() {
+	if !(configuration.Windows || configuration.Linux || configuration.Macos) {
+		fatalLog("Unsupported OS")
+	}
+	if !configuration.AMD64 {
+		// Only non-amd64 architecture supported is arm64 on linux
+		if !(configuration.ARM64 && configuration.Linux) {
+			fatalLog("Unsupported OS/Architecture")
+		}
+	}
 	if len(os.Args) > 1 && (os.Args[1] == "-V" || os.Args[1] == "--version" || os.Args[1] == "version") {
 		fmt.Println(configuration.Version)
 	} else {
