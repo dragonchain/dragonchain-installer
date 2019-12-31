@@ -42,7 +42,9 @@ func InstallKubectlIfNecessary() error {
 		var allowExecute os.FileMode = 0775
 		unixBinaryPath := filepath.Join("/", "usr", "local", "bin", "kubectl")
 		downloadLink := configuration.LinuxKubectlLink
-		if configuration.Macos {
+		if configuration.ARM64 {
+			downloadLink = configuration.LinuxKubectlArm64Link
+		} else if configuration.Macos {
 			downloadLink = configuration.MacosKubectlLink
 		}
 		if err := downloader.DownloadFile(tempPath, downloadLink); err != nil {

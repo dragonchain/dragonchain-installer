@@ -42,7 +42,9 @@ func InstallMinikubeIfNecessary() error {
 		var allowExecute os.FileMode = 0775
 		unixBinaryPath := filepath.Join("/", "usr", "local", "bin", "minikube")
 		downloadLink := configuration.LinuxMinikubeLink
-		if configuration.Macos {
+		if configuration.ARM64 {
+			downloadLink = configuration.LinuxMinikubeArm64Link
+		} else if configuration.Macos {
 			downloadLink = configuration.MacosMinikubeLink
 		}
 		if err := downloader.DownloadFile(tempPath, downloadLink); err != nil {

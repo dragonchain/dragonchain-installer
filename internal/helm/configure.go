@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 	"time"
 
 	"github.com/dragonchain/dragonchain-installer/internal/configuration"
@@ -47,15 +48,39 @@ func waitForTillerToBeReady() error {
 	return errors.New("Tiller pod failed to become ready")
 }
 
+// GetHelmMajorVersion gets the major version of helm (either 2 or 3)
+func GetHelmMajorVersion() (int, error) {
+	cmd := exec.Command("helm", "version", "-c", "--short")
+	cmd.Stderr = os.Stderr
+	out, err := cmd.Output()
+	if err != nil {
+		return 0, errors.New("Unable to get helm version:\n" + err.Error())
+	}
+	versionOutput := string(out)
+	if strings.Contains(versionOutput, "v2.") {
+		return 2, nil
+	} else if strings.Contains(versionOutput, "v3.") {
+		return 3, nil
+	}
+	return 0, errors.New("Unable to parse helm version string")
+}
+
 // InitializeHelm intializes helm both locally, and in the minikube cluster
 func InitializeHelm() error {
 	fmt.Println("Configuring helm")
-	cmd := exec.Command("helm", "init", "--upgrade", "--kube-context", configuration.MinikubeContext)
-	cmd.Stderr = os.Stderr
-	if err := cmd.Run(); err != nil {
-		return errors.New("Initializing helm failed:\n" + err.Error())
+	helmVersion, err := GetHelmMajorVersion()
+	if err != nil {
+		return err
 	}
-	cmd = exec.Command("helm", "repo", "add", "dragonchain", "https://dragonchain-charts.s3.amazonaws.com")
+	// Only helm v2 requires tiller initialization
+	if helmVersion == 2 {
+		cmd := exec.Command("helm", "init", "--upgrade", "--kube-context", configuration.MinikubeContext)
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return errors.New("Initializing helm failed:\n" + err.Error())
+		}
+	}
+	cmd := exec.Command("helm", "repo", "add", "dragonchain", "https://dragonchain-charts.s3.amazonaws.com")
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errors.New("Adding dragonchain helm repo failed:\n" + err.Error())
@@ -65,14 +90,24 @@ func InitializeHelm() error {
 	if err := cmd.Run(); err != nil {
 		return errors.New("Adding openfaas helm repo failed:\n" + err.Error())
 	}
+	if helmVersion >= 3 {
+		// Stable repository is not added by default in helm 3+
+		cmd = exec.Command("helm", "repo", "add", "stable", "https://kubernetes-charts.storage.googleapis.com")
+		cmd.Stderr = os.Stderr
+		if err := cmd.Run(); err != nil {
+			return errors.New("Adding stable helm repo failed:\n" + err.Error())
+		}
+	}
 	cmd = exec.Command("helm", "repo", "update")
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errors.New("Updating helm repo failed (are you connected to the internet?):\n" + err.Error())
 	}
-	time.Sleep(3 * time.Second)
-	if err := waitForTillerToBeReady(); err != nil {
-		return err
+	if helmVersion == 2 {
+		time.Sleep(3 * time.Second)
+		if err := waitForTillerToBeReady(); err != nil {
+			return err
+		}
 	}
 	return nil
 }

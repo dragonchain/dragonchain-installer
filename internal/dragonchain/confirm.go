@@ -3,6 +3,7 @@ package dragonchain
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"os"
 	"os/exec"
 	"strings"
@@ -65,10 +66,14 @@ func dragonchainPubIDRecurse(config *configuration.Configuration, tries int) (st
 }
 
 func waitForDragonchainToBeReady(config *configuration.Configuration) error {
-	// Wait up to 90-ish seconds for dragonchain to be ready before erroring
-	for i := 0; i < 90; i++ {
+	// Wait up to 120-ish seconds for dragonchain to be ready before erroring
+	for i := 0; i < 120; i++ {
 		// Wait before checking
 		time.Sleep(1 * time.Second)
+		// Print a '.' every 10 seconds to show that the program is still running
+		if i%10 == 0 {
+			fmt.Print(".")
+		}
 		cmd := exec.Command("kubectl", "get", "pod", "-n", "dragonchain", "-l", "dragonchainId="+config.InternalID, "-o", "json", "--context="+configuration.MinikubeContext)
 		cmd.Stderr = os.Stderr
 		output, err := cmd.Output()

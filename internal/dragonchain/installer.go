@@ -102,7 +102,7 @@ func getExistingSecret(config *configuration.Configuration) error {
 
 func upsertDragonchainHelmDeployment(config *configuration.Configuration) error {
 	setStringStr := "global.environment.LEVEL=" + strconv.Itoa(config.Level)
-	setStr := "global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
+	setStr := "dragonchain.storage.spec.storageClassName=local-path,redis.storage.spec.storageClassName=local-path,redisearch.storage.spec.storageClassName=local-path,global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
 	if config.Level == 1 {
 		setStr += ",faas.gateway=http://gateway.openfaas:8080,faas.mountFaasSecret=true,faas.registry=" + configuration.RegistryIP + ":" + strconv.Itoa(configuration.RegistryPort)
 	}
@@ -134,7 +134,9 @@ func InstallDragonchain(config *configuration.Configuration) error {
 	}
 	fmt.Println("Dragonchain helm deployment complete. Waiting for chain to be ready.")
 	// Wait for the deployment to be ready before continuing
-	if err := waitForDragonchainToBeReady(config); err != nil {
+	err := waitForDragonchainToBeReady(config)
+	fmt.Print("\n")
+	if err != nil {
 		return err
 	}
 	return nil

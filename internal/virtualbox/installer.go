@@ -20,6 +20,9 @@ func virtualBoxIsInstalled() bool {
 
 // InstallVirtualBoxIfNecessary checks if virtualbox is already installed, and installs it if necessary
 func InstallVirtualBoxIfNecessary() error {
+	if !configuration.AMD64 {
+		return errors.New("Cannot install virtualbox on non-amd64 architecture")
+	}
 	if virtualBoxIsInstalled() {
 		fmt.Println("virtualbox appears to already be installed")
 		return nil

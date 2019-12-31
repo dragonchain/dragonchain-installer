@@ -85,7 +85,7 @@ func createOpenFaasDeployment() error {
 		return errors.New("Error creating openfaas kubernetes secret:\n" + err.Error())
 	}
 	// Install openfaas
-	cmd = exec.Command("helm", "upgrade", "--install", "openfaas", "openfaas/openfaas", "--namespace", "openfaas", "--set", "basic_auth=true,functionNamespace=openfaas-fn,async=false,exposeServices=false,alertmanager.create=false,prometheus.create=false", "--version", configuration.OpenfaasHelmVersion, "--kube-context", configuration.MinikubeContext)
+	cmd = exec.Command("helm", "upgrade", "--install", "openfaas", "openfaas/openfaas", "--namespace", "openfaas", "--set", "basic_auth=true,generateBasicAuth=false,functionNamespace=openfaas-fn,async=false,exposeServices=false,alertmanager.create=false,prometheus.create=false", "--version", configuration.OpenfaasHelmVersion, "--kube-context", configuration.MinikubeContext)
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errors.New("Error helm deploying openfaas:\n" + err.Error())

@@ -2,7 +2,7 @@
 set -e
 
 # Default version (change with new tagged releases)
-VERSION="v0.5.0"
+VERSION="v0.6.0"
 
 if [ -z "$HOME" ]; then
     echo "The \$HOME environment variable must be present"

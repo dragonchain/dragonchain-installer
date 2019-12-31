@@ -52,11 +52,14 @@ func InstallHelmIfNecessary() error {
 		tempZip := filepath.Join(tempDir, "helm.tar.gz")
 		downloadLink := configuration.LinuxHelmLink
 		extractedFolder := "linux-amd64"
-		unixInstallPath := filepath.Join("/", "usr", "local", "bin", "helm")
-		if configuration.Macos {
+		if configuration.ARM64 {
+			downloadLink = configuration.LinuxHelmArm64Link
+			extractedFolder = "linux-arm64"
+		} else if configuration.Macos {
 			downloadLink = configuration.MacosHelmLink
 			extractedFolder = "darwin-amd64"
 		}
+		unixInstallPath := filepath.Join("/", "usr", "local", "bin", "helm")
 		// Download the helm gzip package
 		if err := downloader.DownloadFile(tempZip, downloadLink); err != nil {
 			return err
