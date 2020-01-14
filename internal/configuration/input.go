@@ -298,6 +298,13 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
+	folder, err := credentialFolderPath()
+	if err != nil {
+		return nil, err
+	}
+	if err := os.MkdirAll(folder, os.ModePerm); err != nil {
+		return nil, err
+	}
 	configFile, err := configFilePath()
 	if err != nil {
 		return nil, err

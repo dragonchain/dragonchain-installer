@@ -111,6 +111,7 @@ func main() {
 		if !(configuration.ARM64 && configuration.Linux) {
 			fatalLog("Unsupported OS/Architecture")
 		}
+		fmt.Println("WARNING!!! ARM64 support is currently experimental and not fully working/supported.")
 	}
 	if len(os.Args) > 1 && (os.Args[1] == "-V" || os.Args[1] == "--version" || os.Args[1] == "version") {
 		fmt.Println(configuration.Version)

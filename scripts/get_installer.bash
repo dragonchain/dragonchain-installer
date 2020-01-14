@@ -2,7 +2,7 @@
 set -e
 
 # Default version (change with new tagged releases)
-VERSION="v0.6.0"
+VERSION="v0.6.1"
 
 if [ -z "$HOME" ]; then
     echo "The \$HOME environment variable must be present"
@@ -15,8 +15,15 @@ if [ "$OS" != "linux" ] && [ "$OS" != "darwin" ]; then
     exit 1
 fi
 
-if [ "$(uname -m)" != "x86_64" ]; then
-    echo "The installer only works on 64 bit machines"
+ARCH=""
+if [ "$(uname -m)" = "x86_64" ]; then
+    ARCH="amd64"
+fi
+if [ "$(uname -m)" = "aarch64" ]; then
+    ARCH="arm64"
+fi
+if [ "$ARCH" = "" ]; then
+    echo "This installer only works for 64 bit cpus (amd64 or arm64)"
     exit 1
 fi
 
@@ -59,7 +66,7 @@ mkdir -p "$HOME/.local/bin/"
 # Download the installer if necessary
 LOCAL_FILE="$HOME/.local/bin/dc-installer-$VERSION"
 if [ ! -f "$LOCAL_FILE" ]; then
-    DOWNLOAD_URL="https://github.com/dragonchain/dragonchain-installer/releases/download/$VERSION/dc-installer-$OS-amd64"
+    DOWNLOAD_URL="https://github.com/dragonchain/dragonchain-installer/releases/download/$VERSION/dc-installer-$OS-$ARCH"
     echo "Downloading installer at $DOWNLOAD_URL"
     if [ "$DL_CMD" = "curl" ]; then
         curl -Lf "$DOWNLOAD_URL" -o "$LOCAL_FILE"

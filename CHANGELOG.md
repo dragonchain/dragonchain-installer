@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.1
+
+- **Features:**
+  - Add warning when running on arm64 that support is currently experimental and not yet fully working
+- **Bugs:**
+  - Fix a bug where installer would fail after inputting configuration if dragonchain config folder didn't already exist
+  - Fix install script for arm64
+
 ## v0.6.0
 
 - **Features:**
