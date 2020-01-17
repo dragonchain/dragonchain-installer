@@ -1,5 +1,13 @@
 # Changelog
 
+## v0.6.2
+
+- **Packaging:**
+  - Use new dragonchain version 4.3.3 (chart version 1.0.7)
+  - Update default installed kubectl to v1.17.1
+  - Update default installed virtualbox to v6.1.2
+  - Use openfaas chart version 5.4.1 (openfaas 0.18.7, faas-netes 0.9.15)
+
 ## v0.6.1
 
 - **Features:**
