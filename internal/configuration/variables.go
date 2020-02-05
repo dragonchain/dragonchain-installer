@@ -4,10 +4,10 @@ package configuration
 var Version string
 
 // DragonchainHelmVersion helm version of dragonchain to use
-var DragonchainHelmVersion = "1.0.7"
+var DragonchainHelmVersion = "1.0.8"
 
 // OpenfaasHelmVersion helm version of openfaas (faas-netes) to use
-var OpenfaasHelmVersion = "5.4.1"
+var OpenfaasHelmVersion = "5.5.1"
 
 // RegistryHelmVersion helm version of docker container registry to use
 var RegistryHelmVersion = "1.9.1"
@@ -22,7 +22,7 @@ var RegistryPort = 5000
 var MinikubeContext = "dragonchain"
 
 // KubernetesVersion the kubernetes version to use with the dragonchain's minikube cluster
-var KubernetesVersion = "v1.15.5"
+var KubernetesVersion = "v1.15.9"
 
 // MinikubeVMMemory amount of memory to give to the minikube VM (only applicable when creating new minikube cluster)
 var MinikubeVMMemory = "4000mb"
@@ -40,40 +40,40 @@ var MacosVirtualboxLink = "https://download.virtualbox.org/virtualbox/6.1.2/Virt
 var WindowsVirtualboxLink = "https://download.virtualbox.org/virtualbox/6.1.2/VirtualBox-6.1.2-135663-Win.exe"
 
 // LinuxMinikubeArm64Link direct link for minikube aarch64 executable
-var LinuxMinikubeArm64Link = "https://storage.googleapis.com/minikube/releases/v1.6.2/minikube-linux-arm64"
+var LinuxMinikubeArm64Link = "https://storage.googleapis.com/minikube/releases/v1.7.0/minikube-linux-arm64"
 
 // LinuxMinikubeLink direct link for linux minikube executable
-var LinuxMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.6.2/minikube-linux-amd64"
+var LinuxMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.7.0/minikube-linux-amd64"
 
 // MacosMinikubeLink direct link for macos minikube executable
-var MacosMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.6.2/minikube-darwin-amd64"
+var MacosMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.7.0/minikube-darwin-amd64"
 
 // WindowsMinikubeLink direct link for windows minikube executable
-var WindowsMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.6.2/minikube-windows-amd64.exe"
+var WindowsMinikubeLink = "https://storage.googleapis.com/minikube/releases/v1.7.0/minikube-windows-amd64.exe"
 
 // LinuxHelmLink direct link for linux helm package
-var LinuxHelmLink = "https://get.helm.sh/helm-v3.0.2-linux-amd64.tar.gz"
+var LinuxHelmLink = "https://get.helm.sh/helm-v3.0.3-linux-amd64.tar.gz"
 
 // LinuxHelmArm64Link direct link for linux arm64 helm package
-var LinuxHelmArm64Link = "https://get.helm.sh/helm-v3.0.2-linux-arm64.tar.gz"
+var LinuxHelmArm64Link = "https://get.helm.sh/helm-v3.0.3-linux-arm64.tar.gz"
 
 // MacosHelmLink direct link for macos helm package
-var MacosHelmLink = "https://get.helm.sh/helm-v3.0.2-darwin-amd64.tar.gz"
+var MacosHelmLink = "https://get.helm.sh/helm-v3.0.3-darwin-amd64.tar.gz"
 
 // WindowsHelmLink direct link for windows helm package
-var WindowsHelmLink = "https://get.helm.sh/helm-v3.0.2-windows-amd64.zip"
+var WindowsHelmLink = "https://get.helm.sh/helm-v3.0.3-windows-amd64.zip"
 
 // LinuxKubectlLink direct link for linux kubectl executable
-var LinuxKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.1/bin/linux/amd64/kubectl"
+var LinuxKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.2/bin/linux/amd64/kubectl"
 
 // LinuxKubectlArm64Link directl link for linux arm64 kubectl executable
-var LinuxKubectlArm64Link = "https://storage.googleapis.com/kubernetes-release/release/v1.17.1/bin/linux/arm64/kubectl"
+var LinuxKubectlArm64Link = "https://storage.googleapis.com/kubernetes-release/release/v1.17.2/bin/linux/arm64/kubectl"
 
 // MacosKubectlLink direct link for macos kubectl executable
-var MacosKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.1/bin/darwin/amd64/kubectl"
+var MacosKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.2/bin/darwin/amd64/kubectl"
 
 // WindowsKubectlLink direct link for windows kubectl executable
-var WindowsKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.1/bin/windows/amd64/kubectl.exe"
+var WindowsKubectlLink = "https://storage.googleapis.com/kubernetes-release/release/v1.17.2/bin/windows/amd64/kubectl.exe"
 
 // SetDefaultCredentials indicates whether or not to set the default chain whe configuring the credentials ini file
 var SetDefaultCredentials = true

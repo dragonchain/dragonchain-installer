@@ -1,5 +1,15 @@
 # Changelog
 
+## v0.6.3
+
+- **Packaging:**
+  - Use new dragonchain version 4.4.0 (chart version 1.0.8)
+  - Update default version of kubernetes to 1.15.9
+  - Update default installed minikube to 1.7.0
+  - Update default installed helm to 3.0.3
+  - Update default installed kubectl to v1.17.2
+  - Use openfaas chart version 5.5.1 (openfaas 0.18.7, faas-netes 0.10.0)
+
 ## v0.6.2
 
 - **Packaging:**
