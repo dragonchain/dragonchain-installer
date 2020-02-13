@@ -83,7 +83,7 @@ func StartMinikubeCluster(useVM bool) error {
 	var minikubeStartCmd *exec.Cmd
 	if !useVM {
 		fmt.Println("\nStarting minikube cluster; This can take a while")
-		minikubeStartCmd = exec.Command("sudo", "minikube", "start", "--kubernetes-version="+configuration.KubernetesVersion, "--vm-driver=none")
+		minikubeStartCmd = exec.Command("sudo", "-E", "minikube", "start", "--kubernetes-version="+configuration.KubernetesVersion, "--vm-driver=none")
 		configuration.MinikubeContext = "minikube"
 	} else {
 		if exists {

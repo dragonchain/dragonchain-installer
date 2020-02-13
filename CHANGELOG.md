@@ -1,5 +1,16 @@
 # Changelog
 
+## v0.6.4
+
+- **Bugs:**
+  - Fix bug when not using a VM on linux to properly configure kubectl config environment for the proper user
+- **Packaging:**
+  - Update default version of kubernetes to 1.15.10
+  - Update default installed minikube to 1.7.2
+  - Update default installed helm to 3.1.0
+  - Update default installed kubectl to v1.17.3
+  - Use openfaas chart version 5.5.4 (openfaas 0.18.10, faas-netes 0.10.1)
+
 ## v0.6.3
 
 - **Packaging:**
