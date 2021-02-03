@@ -26,6 +26,7 @@ type Configuration struct {
 	InternalID        string `json:"InternalID"`
 	RegistrationToken string `json:"RegistrationToken"`
 	UseVM             bool   `json:"UseVM"`
+	InstallKubernetes bool	 `json:"InstallKubernetes"`
 	PrivateKey        string
 	HmacID            string
 	HmacKey           string
@@ -221,6 +222,20 @@ func getVMDriver() (bool, error) {
 	return false, errors.New("Must answer yes/no")
 }
 
+func shouldInstallKubernetes() (bool, error) {
+	answer, err := getUserInput("Would you like to install on existing kubernetes architecture? (yes/no) ")
+	if err != nil {
+		return false, err
+	}
+	answer = strings.ToLower(answer)
+	if answer == "y" || answer == "yes" {
+		return true, nil
+	} else if answer == "n" || answer == "no" {
+		return false, nil
+	}
+	return false, errors.New("Must answer yes/no")
+}
+
 // PromptForUserConfiguration get user input for all the necessary configurable variables of a Dragonchain
 func PromptForUserConfiguration() (*Configuration, error) {
 	// Check for existing configuration from previous run first
@@ -246,6 +261,10 @@ func PromptForUserConfiguration() (*Configuration, error) {
 		} else {
 			return nil, errors.New("Must answer yes/no")
 		}
+	}
+	installKubernetes, err := shouldInstallKubernetes()
+	if err != nil {
+		return nil, err
 	}
 	// Get desired vm usage
 	vmDriver, err := getVMDriver()
@@ -294,6 +313,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	config.InternalID = internalID
 	config.RegistrationToken = registrationToken
 	config.UseVM = vmDriver
+	config.installKubernetes =
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
