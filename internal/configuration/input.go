@@ -157,9 +157,9 @@ func getPort() (int, error) {
 		if err != nil {
 			return -1, errors.New("Couldn't parse provided port into integer:\n" + err.Error())
 		}
-		// if parsedPort < 30000 || parsedPort > 32767 {
-		// 	return -1, errors.New("Port must be between 30000 and 32767")
-		// }
+		if parsedPort < 30000 || parsedPort > 32767 {
+			return -1, errors.New("Port must be between 30000 and 32767")
+		}
 		port = int(parsedPort)
 	}
 	return port, nil
@@ -238,6 +238,16 @@ func shouldInstallKubernetes() (bool, error) {
 	return false, errors.New("Must answer yes/no")
 }
 
+func stageToUse() (string) {
+	stage := "dev"
+	answer, _ := getUserInput("Which stage would you like to use for your chain? (prod/dev) ")
+	answer = strings.ToLower(answer)
+	if answer == "p" || answer == "prod" {
+		stage = "prod"
+	}
+	return stage
+}
+
 // PromptForUserConfiguration get user input for all the necessary configurable variables of a Dragonchain
 func PromptForUserConfiguration() (*Configuration, error) {
 	// Check for existing configuration from previous run first
@@ -251,6 +261,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 			ChainID: ` + existingConf.InternalID + `
 			MatchmakingToken: ` + existingConf.RegistrationToken + `
 			UseVM: ` + strconv.FormatBool(existingConf.UseVM) + `
+			InstallKubernetes: ` + strconv.FormatBool(existingConf.InstallKubernetes) + `
 			Would you like to use this config? (yes/no) `)
 		if err != nil {
 			return nil, err

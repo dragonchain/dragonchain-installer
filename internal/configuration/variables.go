@@ -7,7 +7,7 @@ var Version string
 var DragonchainHelmVersion = "1.0.8"
 
 // OpenfaasHelmVersion helm version of openfaas (faas-netes) to use
-var OpenfaasHelmVersion = "5.5.4"
+var OpenfaasHelmVersion = "7.0.4" //"5.5.4"
 
 // RegistryHelmVersion helm version of docker container registry to use
 var RegistryHelmVersion = "1.9.1"
