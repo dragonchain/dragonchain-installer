@@ -28,6 +28,7 @@ type Configuration struct {
 	UseVM             bool   `json:"UseVM"`
 	InstallKubernetes bool	 `json:"InstallKubernetes"`
 	Stage							string `json:"Stage"`
+	S3Bucket					string `json:"S3Bucket"`
 	PrivateKey        string
 	HmacID            string
 	HmacKey           string
@@ -158,9 +159,6 @@ func getPort() (int, error) {
 		if err != nil {
 			return -1, errors.New("Couldn't parse provided port into integer:\n" + err.Error())
 		}
-		// if parsedPort < 30000 || parsedPort > 32767 {
-		// 	return -1, errors.New("Port must be between 30000 and 32767")
-		// }
 		port = int(parsedPort)
 	}
 	return port, nil
@@ -239,7 +237,7 @@ func shouldInstallKubernetes() (bool, error) {
 	return false, errors.New("Must answer yes/no")
 }
 
-func getStage() (string) {
+func getStage() string {
 	stage := "dev"
 	answer, _ := getUserInput("Which stage would you like to use for your chain? (prod/dev) ")
 	answer = strings.ToLower(answer)
@@ -247,6 +245,15 @@ func getStage() (string) {
 		stage = "prod"
 	}
 	return stage
+}
+
+func getS3Bucket() string {
+	bucket := ""
+	answer, _ := getUserInput("S3 Bucket URL: (optional) ")
+	if answer != "" {
+		bucket = answer
+	}
+	return bucket
 }
 
 // PromptForUserConfiguration get user input for all the necessary configurable variables of a Dragonchain
@@ -264,6 +271,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 			UseVM: ` + strconv.FormatBool(existingConf.UseVM) + `
 			InstallKubernetes: ` + strconv.FormatBool(existingConf.InstallKubernetes) + `
 			Stage: ` + existingConf.Stage + `
+			S3 Bucket: ` + existingConf.S3Bucket + `
 			Would you like to use this config? (yes/no) `)
 		if err != nil {
 			return nil, err
@@ -320,6 +328,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	if err != nil {
 		return nil, err
 	}
+	s3Bucket := getS3Bucket()
 	// Construct and save the config object
 	config := new(Configuration)
 	config.Level = level
@@ -331,6 +340,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	config.UseVM = vmDriver
 	config.InstallKubernetes = installKubernetes
 	config.Stage = stage
+	config.S3Bucket = s3Bucket
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		return nil, err

@@ -113,6 +113,9 @@ func upsertDragonchainHelmDeployment(config *configuration.Configuration) error 
 	if config.Stage == "dev" {
 		setStringStr = setStringStr + ",global.environment.STAGE=" + config.Stage
 	}
+	if config.S3Bucket != "" {
+		setStringStr = setStringStr + ",global.environment.STORAGE_LOCATION=" + config.S3Bucket + ",global.environment.STORAGE_TYPE=s3"
+	}
 	setStr := "ingressEndpoint=eks.dragonchain.com,dragonchain.storage.spec.storageClassName=gp2,redis.storage.spec.storageClassName=gp2,redisearch.storage.spec.storageClassName=gp2,global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
 	if config.Level == 1 {
 		setStr += ",faas.gateway=http://gateway.openfaas:8080,faas.mountFaasSecret=true,faas.registry=" + configuration.RegistryIP + ":" + strconv.Itoa(configuration.RegistryPort)
