@@ -100,13 +100,15 @@ func getExistingSecret(config *configuration.Configuration) error {
 	return nil
 }
 
+// configuration.DragonchainHelmVersion
+
 func upsertDragonchainHelmDeployment(config *configuration.Configuration) error {
 	setStringStr := "global.environment.LEVEL=" + strconv.Itoa(config.Level)
-	setStr := "dragonchain.storage.spec.storageClassName=local-path,redis.storage.spec.storageClassName=local-path,redisearch.storage.spec.storageClassName=local-path,global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
+	setStr := "ingressEndpoint=eks.dragonchain.com,dragonchain.storage.spec.storageClassName=gp2,redis.storage.spec.storageClassName=gp2,redisearch.storage.spec.storageClassName=gp2,global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
 	if config.Level == 1 {
 		setStr += ",faas.gateway=http://gateway.openfaas:8080,faas.mountFaasSecret=true,faas.registry=" + configuration.RegistryIP + ":" + strconv.Itoa(configuration.RegistryPort)
 	}
-	cmd := exec.Command("helm", "upgrade", "--install", "d-"+config.InternalID, "dragonchain/dragonchain-k8s", "--namespace", "dragonchain", "--set-string", setStringStr, "--set", setStr, "--version", configuration.DragonchainHelmVersion, "--kube-context", configuration.MinikubeContext)
+	cmd := exec.Command("helm", "upgrade", "--install", "d-"+config.InternalID, "./dc-k8s-helm", "--namespace", "dragonchain", "--set-string", setStringStr, "--set", setStr, "--version", "1.0.9", "--kube-context", configuration.MinikubeContext)
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errors.New("Error installing dragonchain helm chart:\n" + err.Error())

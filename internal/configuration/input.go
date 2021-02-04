@@ -157,9 +157,9 @@ func getPort() (int, error) {
 		if err != nil {
 			return -1, errors.New("Couldn't parse provided port into integer:\n" + err.Error())
 		}
-		if parsedPort < 30000 || parsedPort > 32767 {
-			return -1, errors.New("Port must be between 30000 and 32767")
-		}
+		// if parsedPort < 30000 || parsedPort > 32767 {
+		// 	return -1, errors.New("Port must be between 30000 and 32767")
+		// }
 		port = int(parsedPort)
 	}
 	return port, nil
@@ -189,7 +189,9 @@ func getEndpoint(port int) (string, error) {
 		}
 	}
 	// add selected port to the endpoint
-	endpoint += ":" + strconv.Itoa(port)
+	if port != 80 && port != 8080 {
+		endpoint += ":" + strconv.Itoa(port)
+	}
 	return endpoint, nil
 }
 
@@ -313,7 +315,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	config.InternalID = internalID
 	config.RegistrationToken = registrationToken
 	config.UseVM = vmDriver
-	config.installKubernetes =
+	config.InstallKubernetes = installKubernetes
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		return nil, err

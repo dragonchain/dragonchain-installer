@@ -26,7 +26,7 @@ func fatalLog(v ...interface{}) {
 }
 
 func installer() {
-	fmt.Print("Starting dragonchain installer\n"
+	fmt.Print("Starting dragonchain installer\n")
 	config, err := configuration.PromptForUserConfiguration()
 	if err != nil {
 		fatalLog(err)
@@ -52,9 +52,9 @@ func installer() {
 		if err := minikube.StartMinikubeCluster(config.UseVM); err != nil {
 			fatalLog(err)
 		}
-		if err := helm.InitializeHelm(); err != nil {
-			fatalLog(err)
-		}
+	}
+	if err := helm.InitializeHelm(); err != nil {
+		fatalLog(err)
 	}
 	if err := dragonchain.SetupDragonchainPreReqs(config); err != nil {
 		fatalLog(err)
