@@ -102,13 +102,25 @@ func getExistingSecret(config *configuration.Configuration) error {
 
 // configuration.DragonchainHelmVersion
 
+func listDirectories() {
+	cmd := exec.Command("ls", "-la")
+	output, _ := cmd.Output()
+	fmt.Print(string(output[:]))
+}
+
 func upsertDragonchainHelmDeployment(config *configuration.Configuration) error {
 	setStringStr := "global.environment.LEVEL=" + strconv.Itoa(config.Level)
+	if config.Stage == "dev" {
+		setStringStr = setStringStr + ",global.environment.STAGE=" + config.Stage
+	}
 	setStr := "ingressEndpoint=eks.dragonchain.com,dragonchain.storage.spec.storageClassName=gp2,redis.storage.spec.storageClassName=gp2,redisearch.storage.spec.storageClassName=gp2,global.environment.DRAGONCHAIN_NAME=" + config.Name + ",global.environment.REGISTRATION_TOKEN=" + config.RegistrationToken + ",global.environment.INTERNAL_ID=" + config.InternalID + ",global.environment.DRAGONCHAIN_ENDPOINT=" + config.EndpointURL + ",service.port=" + strconv.Itoa(config.Port)
 	if config.Level == 1 {
 		setStr += ",faas.gateway=http://gateway.openfaas:8080,faas.mountFaasSecret=true,faas.registry=" + configuration.RegistryIP + ":" + strconv.Itoa(configuration.RegistryPort)
 	}
 	cmd := exec.Command("helm", "upgrade", "--install", "d-"+config.InternalID, "./dc-k8s-helm", "--namespace", "dragonchain", "--set-string", setStringStr, "--set", setStr, "--version", "1.0.9", "--kube-context", configuration.MinikubeContext)
+	if !config.InstallKubernetes {
+		cmd = exec.Command("helm", "upgrade", "--install", "-f", "./dragonchain-eks/dc-k8s-helm/values.eks.yaml", "d-"+config.InternalID, "./dragonchain-eks/dc-k8s-helm", "--namespace", "dragonchain", "--set-string", setStringStr, "--set", setStr, "--version", "1.0.9", "--kube-context", configuration.MinikubeContext)
+	}
 	cmd.Stderr = os.Stderr
 	if err := cmd.Run(); err != nil {
 		return errors.New("Error installing dragonchain helm chart:\n" + err.Error())

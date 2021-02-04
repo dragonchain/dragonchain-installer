@@ -27,6 +27,7 @@ type Configuration struct {
 	RegistrationToken string `json:"RegistrationToken"`
 	UseVM             bool   `json:"UseVM"`
 	InstallKubernetes bool	 `json:"InstallKubernetes"`
+	Stage							string `json:"Stage"`
 	PrivateKey        string
 	HmacID            string
 	HmacKey           string
@@ -157,9 +158,9 @@ func getPort() (int, error) {
 		if err != nil {
 			return -1, errors.New("Couldn't parse provided port into integer:\n" + err.Error())
 		}
-		if parsedPort < 30000 || parsedPort > 32767 {
-			return -1, errors.New("Port must be between 30000 and 32767")
-		}
+		// if parsedPort < 30000 || parsedPort > 32767 {
+		// 	return -1, errors.New("Port must be between 30000 and 32767")
+		// }
 		port = int(parsedPort)
 	}
 	return port, nil
@@ -238,7 +239,7 @@ func shouldInstallKubernetes() (bool, error) {
 	return false, errors.New("Must answer yes/no")
 }
 
-func stageToUse() (string) {
+func getStage() (string) {
 	stage := "dev"
 	answer, _ := getUserInput("Which stage would you like to use for your chain? (prod/dev) ")
 	answer = strings.ToLower(answer)
@@ -262,6 +263,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 			MatchmakingToken: ` + existingConf.RegistrationToken + `
 			UseVM: ` + strconv.FormatBool(existingConf.UseVM) + `
 			InstallKubernetes: ` + strconv.FormatBool(existingConf.InstallKubernetes) + `
+			Stage: ` + existingConf.Stage + `
 			Would you like to use this config? (yes/no) `)
 		if err != nil {
 			return nil, err
@@ -275,6 +277,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 			return nil, errors.New("Must answer yes/no")
 		}
 	}
+	stage := getStage()
 	installKubernetes, err := shouldInstallKubernetes()
 	if err != nil {
 		return nil, err
@@ -327,6 +330,7 @@ func PromptForUserConfiguration() (*Configuration, error) {
 	config.RegistrationToken = registrationToken
 	config.UseVM = vmDriver
 	config.InstallKubernetes = installKubernetes
+	config.Stage = stage
 	configJSON, err := json.Marshal(config)
 	if err != nil {
 		return nil, err
