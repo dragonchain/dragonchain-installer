@@ -92,7 +92,7 @@ func InitializeHelm() error {
 	}
 	if helmVersion >= 3 {
 		// Stable repository is not added by default in helm 3+
-		cmd = exec.Command("helm", "repo", "add", "stable", "https://kubernetes-charts.storage.googleapis.com")
+		cmd = exec.Command("helm", "repo", "add", "stable", "https://charts.helm.sh/stable")
 		cmd.Stderr = os.Stderr
 		if err := cmd.Run(); err != nil {
 			return errors.New("Adding stable helm repo failed:\n" + err.Error())
