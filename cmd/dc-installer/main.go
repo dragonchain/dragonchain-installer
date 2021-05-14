@@ -64,6 +64,9 @@ func installer() {
 			fatalLog(err)
 		}
 	}
+	if !config.UseVM && !config.InstallKubernetes {
+		
+	}
 	fmt.Print("\nConfiguration of dependencies complete\nNow installing Dragonchain\n")
 	if err := dragonchain.InstallDragonchain(config); err != nil {
 		fatalLog(err)
