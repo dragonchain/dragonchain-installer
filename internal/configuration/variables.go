@@ -7,19 +7,19 @@ var Version string
 var DragonchainHelmVersion = "1.0.8"
 
 // OpenfaasHelmVersion helm version of openfaas (faas-netes) to use
-var OpenfaasHelmVersion = "5.5.4"
+var OpenfaasHelmVersion = "7.0.4" //"5.5.4"
 
 // RegistryHelmVersion helm version of docker container registry to use
 var RegistryHelmVersion = "1.9.1"
 
 // RegistryIP the clusterip to use for the docker registry deployment
-var RegistryIP = "10.98.76.54"
+var RegistryIP = "10.100.1.102" //"10.98.76.54"
 
 // RegistryPort the port to use for the docker registry deployment
 var RegistryPort = 5000
 
 // MinikubeContext the name of the minikube profile to use, which is also the kubernetes context and VM name
-var MinikubeContext = "dragonchain"
+var MinikubeContext = "i-03908209c2eeff0ea@uw1-k8s-eks.us-west-1.eksctl.io"
 
 // KubernetesVersion the kubernetes version to use with the dragonchain's minikube cluster
 var KubernetesVersion = "v1.15.10"

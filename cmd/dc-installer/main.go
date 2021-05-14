@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/dragonchain/dragonchain-installer/internal/kubectl"
 	"os"
 	"strings"
 
@@ -9,7 +10,6 @@ import (
 	"github.com/dragonchain/dragonchain-installer/internal/dragonchain"
 	"github.com/dragonchain/dragonchain-installer/internal/dragonnet"
 	"github.com/dragonchain/dragonchain-installer/internal/helm"
-	"github.com/dragonchain/dragonchain-installer/internal/kubectl"
 	"github.com/dragonchain/dragonchain-installer/internal/minikube"
 	"github.com/dragonchain/dragonchain-installer/internal/upnp"
 	"github.com/dragonchain/dragonchain-installer/internal/virtualbox"
@@ -26,29 +26,32 @@ func fatalLog(v ...interface{}) {
 }
 
 func installer() {
-	fmt.Print("Starting dragonchain installer\nChecking for required dependencies\n\n")
-	if err := kubectl.InstallKubectlIfNecessary(); err != nil {
-		fatalLog(err)
-	}
-	if err := helm.InstallHelmIfNecessary(); err != nil {
-		fatalLog(err)
-	}
-	if err := minikube.InstallMinikubeIfNecessary(); err != nil {
-		fatalLog(err)
-	}
-	fmt.Print("\nBase dependencies installed\nConfiguring dependencies now\n\n")
+	fmt.Print("Starting dragonchain installer\n")
 	config, err := configuration.PromptForUserConfiguration()
 	if err != nil {
 		fatalLog(err)
 	}
-	if config.UseVM {
-		fmt.Print("Virtualbox required for minikube VM. Checking and installing if necessary\n")
-		if err := virtualbox.InstallVirtualBoxIfNecessary(); err != nil {
+	fmt.Print("Starting dragonchain installer\nChecking for required dependencies\n\n")
+	if config.InstallKubernetes {
+		if err := kubectl.InstallKubectlIfNecessary(); err != nil {
 			fatalLog(err)
 		}
-	}
-	if err := minikube.StartMinikubeCluster(config.UseVM); err != nil {
-		fatalLog(err)
+		if err := helm.InstallHelmIfNecessary(); err != nil {
+			fatalLog(err)
+		}
+		if err := minikube.InstallMinikubeIfNecessary(); err != nil {
+			fatalLog(err)
+		}
+		fmt.Print("\nBase dependencies installed\nConfiguring dependencies now\n\n")
+		if config.UseVM {
+			fmt.Print("Virtualbox required for minikube VM. Checking and installing if necessary\n")
+			if err := virtualbox.InstallVirtualBoxIfNecessary(); err != nil {
+				fatalLog(err)
+			}
+		}
+		if err := minikube.StartMinikubeCluster(config.UseVM); err != nil {
+			fatalLog(err)
+		}
 	}
 	if err := helm.InitializeHelm(); err != nil {
 		fatalLog(err)
@@ -56,10 +59,13 @@ func installer() {
 	if err := dragonchain.SetupDragonchainPreReqs(config); err != nil {
 		fatalLog(err)
 	}
-	if config.UseVM {
+	if config.UseVM && config.InstallKubernetes {
 		if err := virtualbox.ConfigureVirtualboxVM(config); err != nil {
 			fatalLog(err)
 		}
+	}
+	if !config.UseVM && !config.InstallKubernetes {
+		
 	}
 	fmt.Print("\nConfiguration of dependencies complete\nNow installing Dragonchain\n")
 	if err := dragonchain.InstallDragonchain(config); err != nil {
@@ -71,9 +77,11 @@ func installer() {
 		fatalLog(err)
 	}
 	fmt.Print("Dragonchain public id is: " + pubID + "\n\n")
-	startCommand, stopCommand := minikube.FriendlyStartStopCommand(config.UseVM)
-	fmt.Print("In order to stop the dragonchain, run the following command in a terminal:\n" + stopCommand + "\n\n")
-	fmt.Print("In order to restart the dragonchain, run the following command in a terminal:\n" + startCommand + "\n\n")
+	if config.InstallKubernetes {
+		startCommand, stopCommand := minikube.FriendlyStartStopCommand(config.UseVM)
+		fmt.Print("In order to stop the dragonchain, run the following command in a terminal:\n" + stopCommand + "\n\n")
+		fmt.Print("In order to restart the dragonchain, run the following command in a terminal:\n" + startCommand + "\n\n")
+	}
 	if err := configuration.InstallDragonchainCredentials(config, pubID); err != nil {
 		fatalLog(err)
 	}
